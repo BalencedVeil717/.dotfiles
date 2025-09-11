@@ -1,1 +1,3 @@
-/home/nova/.xprofile
+#!/bin/sh
+feh --bg-scale ~/Wall/m3-macx.jpg &
+~/.local/bin/dwmbar.sh &
