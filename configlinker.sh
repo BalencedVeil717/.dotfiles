@@ -22,7 +22,6 @@ home_files=(
     .bashrc
     .bash_profile
     .xinitrc
-    .tmux.conf
 )
 
 for file in "${home_files[@]}"; do
