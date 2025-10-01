@@ -9,11 +9,13 @@ feh --bg-scale ~/.dotfiles/.config/wallpapers/m3-macx.jpg &
 # ---- DWM bar logic ----
 update_status() {
     # Volume (pamixer or amixer)
-    if pamixer --get-mute | grep -q true; then
-      VOL="MUTE ($(pamixer --get-volume)%)"
-    else
-      VOL="$(pamixer --get-volume)%"
-    fi
+    #if pamixer --get-mute | grep -q true; then
+    #  VOL="MUTE ($(pamixer --get-volume)%)"
+    #else
+    #  VOL="$(pamixer --get-volume)%"
+    #fi
+
+    VOL=$(pamixer --get-volume-human 2>/dev/null || echo "--")
 
     # Battery
     BAT=$(cat /sys/class/power_supply/BAT0/capacity 2>/dev/null || echo "--")

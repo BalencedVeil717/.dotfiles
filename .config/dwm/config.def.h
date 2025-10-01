@@ -1,5 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 
+#include <X11/XF86keysym.h>
+
 /* appearance */
 static const unsigned int borderpx  = 1;        /* border pixel of windows */
 static const unsigned int snap      = 32;       /* snap pixel */
@@ -17,6 +19,12 @@ static const char *colors[][3]      = {
 	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
 	[SchemeSel]  = { col_gray4, col_cyan,  col_cyan  },
 };
+
+/* commands */
+static const char *upvol[]   = { "pamixer", "--increase", "5", NULL };
+static const char *downvol[] = { "pamixer", "--decrease", "5", NULL };
+static const char *mutevol[] = { "pamixer", "--toggle-mute", NULL };
+
 
 /* tagging */
 /*static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };*/
@@ -64,6 +72,9 @@ static const char *btopcmd[]  = { "alacritty", "-e", "btop", NULL };
 
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
+        { 0, 				XF86XK_AudioRaiseVolume, spawn, {.v = upvol } },
+        { 0, 				XF86XK_AudioLowerVolume, spawn, {.v = downvol } },
+    	{ 0, 				XF86XK_AudioMute,        spawn, {.v = mutevol } },
 	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
 	{ MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
 	{ ControlMask|ShiftMask,        XK_Escape, spawn,          {.v = btopcmd } },
