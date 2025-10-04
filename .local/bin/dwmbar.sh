@@ -1,4 +1,6 @@
 #!/bin/bash
+set -x
+
 # DWM status bar script
 # Updates volume, battery, and date/time
 
