@@ -1,7 +1,11 @@
-# Ignore PulseAudio runtime folder
+# Ignore unwanted config folder
 .config/pulse/
-.config/st
-.config/btop
-.config/systemd
-.config/lazygit
+.config/st/
+.config/btop/
+.config/systemd/
+.config/lazygit/
 
+
+# Ignore Unwanted post make folders
+.local/share/
+.local/state/
