@@ -1,72 +1,65 @@
 #!/bin/bash
+set -e
 
+# === CONFIG ===
 DOTFILES="$HOME/.dotfiles"
 
-# ---------------------------
-# Helpers
-# ---------------------------
+# === Helper Functions ===
 link() {
-    src="$1"
-    dest="$2"
-
-    if [ -e "$dest" ] || [ -L "$dest" ]; then
-        echo "⚠️  Backing up $dest to $dest.backup"
-        mv "$dest" "$dest.backup"
-    fi
-
-    echo "🔗 Linking $src → $dest"
+    src=$1
+    dest=$2
+    echo "Linking $src → $dest"
+    mkdir -p "$(dirname "$dest")"
     ln -sf "$src" "$dest"
 }
 
-# ---------------------------
-# Install packages
-# ---------------------------
-install_packages() {
-    if [ -f "$DOTFILES/pkglist.txt" ]; then
-        echo "📦 Installing packages from pkglist.txt..."
-        sudo pacman -S --needed - < "$DOTFILES/pkglist.txt"
-    fi
+install_pkglist() {
+    echo "[*] Installing required packages..."
+    sudo pacman -Syu --needed --noconfirm \
+        base-devel git xorg xorg-xinit \
+        alacritty feh picom pamixer pulseaudio pulseaudio-alsa networkmanager \
+        dmenu lf nano \
+        noto-fonts noto-fonts-emoji \
+        ttf-jetbrains-mono ttf-jetbrains-mono-nerd
 }
 
-# ---------------------------
-# Setup shell
-# ---------------------------
-setup_shell() {
-    echo "🖥️ Setting up shell configs..."
-    link "$DOTFILES/shell/.bashrc" "$HOME/.bashrc"
-    link "$DOTFILES/shell/.bash_profile" "$HOME/.bash_profile"
-}
+# === Install Packages ===
+install_pkglist
 
-# ---------------------------
-# Setup xinitrc
-# ---------------------------
-setup_xinit() {
-    echo "🖼️ Setting up .xinitrc..."
-    link "$DOTFILES/.xinitrc" "$HOME/.xinitrc"
-}
+# === Clone or update dotfiles repo ===
+if [ ! -d "$DOTFILES" ]; then
+    echo "[*] Cloning dotfiles repo..."
+    git clone https://github.com/yourusername/dotfiles.git "$DOTFILES"
+else
+    echo "[*] Updating dotfiles repo..."
+    git -C "$DOTFILES" pull
+fi
 
-# ---------------------------
-# Setup xinitrc
-# ---------------------------
+# === Symlinks ===
+echo "[*] Creating symlinks..."
 
-build_dwm_suite() {
-    echo "⚒️ Building [ dwm | dmenu ]"
+# Config dirs
+config_dirs=(alacritty btop dmenu dwm st systemd wallpapers)
+for dir in "${config_dirs[@]}"; do
+    link "$DOTFILES/.config/$dir" "$HOME/.config/$dir"
+done
 
-    for dir in dwm dmenu; do
-        if [ -d "$DOTFILES/.config/$dir" ]; then
-            echo "➡️  Building $dir..."
-            (cd "$DOTFILES/.config/$dir" && sudo make clean install)
-        else
-            echo "❌ $dir not found in $DOTFILES/.config/"
-        fi
-    done
-}
+# Home files
+home_files=(.bashrc .bash_profile .xinitrc)
+for file in "${home_files[@]}"; do
+    link "$DOTFILES/$file" "$HOME/$file"
+done
 
+# Local bin scripts
+mkdir -p "$HOME/.local/bin"
+link "$DOTFILES/.local/bin/dwmbar.sh" "$HOME/.local/bin/dwmbar.sh"
+chmod +x "$HOME/.local/bin/dwmbar.sh"
 
-# ---------------------------
-# Main
-# ---------------------------
-install_packages
-setup_shell
-setup_xinit
-build_dwm_suite
+# === Build dwm, dmenu, st ===
+for prog in dwm dmenu st; do
+    echo "[*] Building $prog..."
+    make -C "$DOTFILES/.config/$prog" clean install
+done
+
+# === Done ===
+echo "🎉 Install complete! Run 'startx' to launch dwm."
