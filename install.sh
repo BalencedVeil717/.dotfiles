@@ -68,4 +68,4 @@ for prog in dwm dmenu st; do
 done
 
 # === Done ===
-echo "🎉 Install complete! Run 'startx' to launch dwm."
+echo ">>> Install complete! Run 'startx' to launch dwm."
