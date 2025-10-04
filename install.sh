@@ -14,26 +14,32 @@ link() {
 }
 
 install_pkglist() {
-    echo "[*] Installing required packages..."
-    sudo pacman -Syu --needed --noconfirm \
-        base-devel git xorg xorg-xinit \
-        alacritty feh picom pamixer pulseaudio pulseaudio-alsa networkmanager \
-        dmenu lf nano \
-        noto-fonts noto-fonts-emoji \
-        ttf-jetbrains-mono ttf-jetbrains-mono-nerd
+    echo ">>> Installing packages from pkglist.txt..."
+    if [ -f "$DOTFILES/pkglist.txt" ]; then
+        sudo pacman -Syu --needed --noconfirm - < "$DOTFILES/pkglist.txt"
+    else
+        echo "pkglist.txt not found in $DOTFILES"
+        echo ">>> Installing suggested fallback packages..."
+        sudo pacman -Syu --needed --noconfirm \
+            base-devel git xorg xorg-xinit \
+            alacritty feh picom pamixer pulseaudio pulseaudio-alsa networkmanager \
+            dmenu lf nano \
+            noto-fonts noto-fonts-emoji \
+            ttf-jetbrains-mono ttf-jetbrains-mono-nerd
+    fi
 }
 
 # === Install Packages ===
 install_pkglist
 
 # === Clone or update dotfiles repo ===
-if [ ! -d "$DOTFILES" ]; then
-    echo "[*] Cloning dotfiles repo..."
-    git clone https://github.com/yourusername/dotfiles.git "$DOTFILES"
-else
-    echo "[*] Updating dotfiles repo..."
-    git -C "$DOTFILES" pull
-fi
+# if [ ! -d "$DOTFILES" ]; then
+#     echo "[*] Cloning dotfiles repo..."
+#     git clone https://github.com/yourusername/dotfiles.git "$DOTFILES"
+# else
+#     echo "[*] Updating dotfiles repo..."
+#     git -C "$DOTFILES" pull
+# fi
 
 # === Symlinks ===
 echo "[*] Creating symlinks..."
@@ -58,7 +64,7 @@ chmod +x "$HOME/.local/bin/dwmbar.sh"
 # === Build dwm, dmenu, st ===
 for prog in dwm dmenu st; do
     echo "[*] Building $prog..."
-    make -C "$DOTFILES/.config/$prog" clean install
+    sudo make -C "$DOTFILES/.config/$prog" clean install
 done
 
 # === Done ===
